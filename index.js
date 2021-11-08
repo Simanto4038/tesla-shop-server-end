@@ -34,18 +34,18 @@ async function run() {
       await client.connect();
       const database = client.db("TeslaShop");
       const allProductsCollection = database.collection("AllProducts");
-    //   const claintCollection = database.collection("ourClaints");
-    //   const destinationDataCollection = database.collection("TeslaDestinationData");
-    //   const userCartDataCollection = database.collection("TeslauserCartData");
-    //   const commentDataCollection = database.collection("CommentCartData");
-      // create a document to insert
+    
 
 
       app.get('/productsOutput', async (req, res) => {
 
        const result =  allProductsCollection.find({});
-      const users = await result.toArray()
-      res.send(users)
+      const products = await result.toArray()
+      const count = await result.count();
+      res.send({
+        count,
+        products
+      })
       })
 
     //   app.get('/usersDetail', async (req, res) => {
