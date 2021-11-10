@@ -34,14 +34,26 @@ async function run() {
       await client.connect();
       const database = client.db("TeslaShop");
       const allProductsCollection = database.collection("AllProducts");
+      const orderCollection = database.collection("Orders");
     
 
 
       app.get('/productsOutput', async (req, res) => {
-
-       const result =  allProductsCollection.find({});
-      const products = await result.toArray()
+      console.log(req.query);
+      const result =  allProductsCollection.find({});
       const count = await result.count();
+      const page =req.query.page;
+      const size = req.query.size;
+      let products;
+      if (page) {
+        products = await result.skip(page*size).limit(parseInt(size)).toArray()
+      }
+      else{
+        products = await result.toArray()
+      }
+   
+     
+     
       res.send({
         count,
         products
@@ -63,6 +75,38 @@ async function run() {
     //   const users = await result.toArray()
     //   res.send(users)
     //   })
+
+
+    //Use POST to Get Data
+
+      
+     app.post("/productsOutput/bykeys",async(req,res)=>
+      {
+        const keys = req.body;
+        console.log('Send to DB',req.body);
+        const quary = {key:{$in: keys}}
+        
+        const products = await allProductsCollection.find(quary).toArray();
+        // console.log(`A document was inserted with the _id: ${result.insertedId}`);
+        res.json(products)
+        //res.send('POST')
+      })
+          
+       /*********Post A  Dynamic Cart Document to Data base**********                      */
+
+      app.post("/userOrder",async(req,res)=>
+      {
+        const order = req.body;
+        console.log('Send Cart to DB' , order);
+        const result = await  orderCollection.insertOne(order);
+        console.log(`A Cart was inserted with the _id: ${result.insertedId}`);
+        res.json(result)
+      
+      })
+
+
+
+
 
       //Post A Document to Data base
 
